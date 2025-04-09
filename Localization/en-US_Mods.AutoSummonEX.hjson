@@ -1,0 +1,30 @@
+"Keybinds.Toggle Auto Summon UI.DisplayName": Toggle Auto Summon UI
+
+UI: {
+	PanelTitle: Auto Summon Panel
+	MinionSlotInfo: Minion Slots:
+	SentrySlotInfo: Sentry Slots:
+	MinionSectionTitle: Minion
+	SentrySectionTitle: Sentry
+
+	Button: {
+		Enable: Enable Auto
+		Disable: Disable Auto
+		Summon: Summon
+		DeSummon: De-Summon
+	}
+}
+
+Configs.AutoSummonConfig.DisplayName: Auto Summon Config
+
+Config: {
+	PanelPosition: {
+		$parentVal: Panel Position
+		Tooltip: ""
+	}
+
+	AllowDrag: {
+		$parentVal: Allow Drag
+		Tooltip: ""
+	}
+}

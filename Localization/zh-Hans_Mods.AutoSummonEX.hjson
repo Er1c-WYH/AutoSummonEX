@@ -1,0 +1,30 @@
+"Keybinds.Toggle Auto Summon UI.DisplayName": 开/关 自动召唤面板
+
+UI: {
+	PanelTitle: 自动召唤面板
+	MinionSlotInfo: 仆从栏位：
+	SentrySlotInfo: 哨兵栏位：
+	MinionSectionTitle: 仆从
+	SentrySectionTitle: 哨兵
+
+	Button: {
+		Enable: 启用自动
+		Disable: 禁用自动
+		Summon: 召唤
+		DeSummon: 取消召唤
+	}
+}
+
+Configs.AutoSummonConfig.DisplayName: 自动召唤配置
+
+Config: {
+	PanelPosition: {
+		$parentVal: 召唤面板位置
+		Tooltip: ""
+	}
+
+	AllowDrag: {
+		$parentVal: 是否允许拖动召唤面板
+		Tooltip: 启用后，你可以通过鼠标拖动召唤面板
+	}
+}

@@ -1,0 +1,6 @@
+displayName = Auto Summon Minions and Sentries
+displayName.zh-Hans = 自动召唤仆从和哨兵
+author = jilijili
+version = 0.1
+
+modReferences = RecipeBrowser
