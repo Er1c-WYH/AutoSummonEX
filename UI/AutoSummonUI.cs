@@ -64,9 +64,6 @@ namespace AutoSummonEX.UI
                 p.SetDefaults(item.shoot);
 
                 bool result = p.minion && !p.sentry;
-
-                Main.NewText($"[仆从判断] {item.Name}: shoot={item.shoot}, minion={p.minion}, sentry={p.sentry}, result={result}", result ? Color.LimeGreen : Color.Red);
-
                 return result;
             };
 

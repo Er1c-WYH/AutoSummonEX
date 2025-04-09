@@ -53,7 +53,7 @@ namespace AutoSummonEX
             if (Main.playerInventory &&
                 Main.mouseItem != null &&
                 Main.mouseItem.type != ItemID.None &&
-                Main.mouseItem.DamageType == DamageClass.Summon &&
+                SummonUIHelper.IsValidSummonWeapon(Main.mouseItem) &&
                 !AutoSummonUISystem.Visible)
             {
                 AutoSummonUISystem.ShowUI();
