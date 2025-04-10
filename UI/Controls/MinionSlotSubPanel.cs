@@ -26,6 +26,8 @@ namespace AutoSummonEX.UI.Panels
         private int slotCost = 1;
         private int usageCount = 1;
 
+        private int delayedFrames = 0;
+
         public Func<float> GetPlayerMaxMinionSlots;
 
         public MinionSlotSubPanel()
@@ -33,7 +35,7 @@ namespace AutoSummonEX.UI.Panels
             this.SetPadding(10);
             this.BackgroundColor = new Color(50, 60, 100) * 0.85f;
             this.BorderColor = new Color(30, 30, 40);
-            this.Width.Set(350f, 0f);
+            this.Width.Set(360f, 0f);
             this.Height.Set(95f, 0f);
 
             ItemSlot = new AutoSummonItemSlot(0.85f);
@@ -41,7 +43,6 @@ namespace AutoSummonEX.UI.Panels
             ItemSlot.Top.Set(10f, 0f);
             Append(ItemSlot);
 
-            // 消耗栏位
             labelCost = new UIText("", 0.85f);
             labelCost.Top.Set(5f, 0f);
             Append(labelCost);
@@ -56,7 +57,6 @@ namespace AutoSummonEX.UI.Panels
             btnCostAdd.OnClick += () => { slotCost++; Refresh(); };
             Append(btnCostAdd);
 
-            // 使用次数
             labelCount = new UIText("", 0.85f);
             labelCount.Top.Set(30f, 0f);
             Append(labelCount);
@@ -81,15 +81,20 @@ namespace AutoSummonEX.UI.Panels
             };
             Append(btnFill);
 
-            // 总占用栏位
             labelTotal = new UIText("", 0.85f);
             labelTotal.Top.Set(55f, 0f);
             Append(labelTotal);
 
-            ScheduleRefresh(); // 延迟刷新，等待布局准备完成
+            Refresh();
         }
 
         private void Refresh()
+        {
+            RefreshTextOnly();
+            ScheduleLayout();
+        }
+
+        private void RefreshTextOnly()
         {
             labelCost.SetText(GetCostLabelText());
             labelCount.SetText(GetCountLabelText());
@@ -97,7 +102,26 @@ namespace AutoSummonEX.UI.Panels
             float max = GetPlayerMaxMinionSlots?.Invoke() ?? 4f;
             float used = slotCost * usageCount;
             labelTotal.SetText(Language.GetTextValue("Mods.AutoSummonEX.UI.MinionSlotPanelInfo") + used.ToString("0.0") + " / " + max);
+        }
 
+        private void ScheduleLayout()
+        {
+            delayedFrames = 0;
+            OnUpdate -= WaitForTextAndLayout;
+            OnUpdate += WaitForTextAndLayout;
+        }
+
+        private void WaitForTextAndLayout(UIElement _)
+        {
+            delayedFrames++;
+            if (delayedFrames < 2) return;
+
+            LayoutUI();
+            OnUpdate -= WaitForTextAndLayout;
+        }
+
+        private void LayoutUI()
+        {
             float baseLeft = 80f;
             float costLabelWidth = labelCost.GetDimensions().Width;
             float countLabelWidth = labelCount.GetDimensions().Width;
@@ -117,21 +141,13 @@ namespace AutoSummonEX.UI.Panels
             btnCountAdd.Left.Set(labelRightX + 42f, 0f);
             btnFill.Left.Set(labelRightX + 84f, 0f);
 
-            float panelMinWidth = labelRightX + 84f + 60f; // 最右按钮 + 一点 padding
-            this.Width.Set(Math.Max(350f, panelMinWidth), 0f);
+            btnFill.Recalculate();
+            float fillLeft = btnFill.Left.Pixels;
+            float fillWidth = btnFill.GetDimensions().Width;
+
+            float panelMinWidth = fillLeft + fillWidth + 20f; // 用 Fill 按钮位置和宽度 + padding 计算
+            this.Width.Set(Math.Max(360f, panelMinWidth), 0f);
             Recalculate();
-        }
-
-        private void ScheduleRefresh()
-        {
-            OnUpdate -= DelayedRefresh;
-            OnUpdate += DelayedRefresh;
-        }
-
-        private void DelayedRefresh(UIElement _)
-        {
-            Refresh();
-            OnUpdate -= DelayedRefresh;
         }
 
         private string GetCostLabelText() => Language.GetTextValue("Mods.AutoSummonEX.UI.Label.Cost") + slotCost;

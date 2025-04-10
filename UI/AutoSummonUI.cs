@@ -8,6 +8,7 @@ using Terraria.ModLoader;
 using AutoSummonEX.Config;
 using Terraria.ID;
 using AutoSummonEX.UI.Panels;
+using System;
 
 namespace AutoSummonEX.UI
 {
@@ -33,7 +34,7 @@ namespace AutoSummonEX.UI
             var config = ModContent.GetInstance<AutoSummonConfig>();
             panel.Left.Set(config.PanelPosition.X, 0f);
             panel.Top.Set(config.PanelPosition.Y, 0f);
-            panel.Width.Set(400f, 0f);
+            // panel.Width.Set(400f, 0f);
             panel.SetPadding(10);
             panel.SetDraggable(config.AllowDrag);
             Append(panel);
@@ -131,6 +132,11 @@ namespace AutoSummonEX.UI
             panelBottomSpacer.Top.Set(nextTop + buttonSpacing * 3 + 10f, 0f);
             panelBottomSpacer.Height.Set(1f, 0f);
             panel.Append(panelBottomSpacer);
+
+            // ✅ 动态设定主面板宽度（含下限）
+            float minPanelWidth = 400f;
+            float dynamicWidth = testPanel.GetDimensions().Width + 40f;
+            panel.Width.Set(Math.Max(minPanelWidth, dynamicWidth), 0f);
         }
 
         public override void Update(GameTime gameTime)
