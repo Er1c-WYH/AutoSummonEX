@@ -7,11 +7,19 @@ UI: {
 	MinionSectionTitle: 仆从
 	SentrySectionTitle: 哨兵
 
+	Label: {
+		Cost: 每次消耗：
+		Count: 使用次数：
+	}
+
+	MinionSlotPanelInfo: 占用栏位：
+
 	Button: {
 		Enable: 启用自动
 		Disable: 禁用自动
 		Summon: 召唤
 		DeSummon: 取消召唤
+		Fill: 充满
 	}
 }
 

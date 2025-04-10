@@ -7,11 +7,19 @@ UI: {
 	MinionSectionTitle: Minion
 	SentrySectionTitle: Sentry
 
+	Label: {
+		Cost: Slot Cost per Use:
+		Count: Usage Count:
+	}
+
+	MinionSlotPanelInfo: Total Slot Usage:
+
 	Button: {
 		Enable: Enable Auto
 		Disable: Disable Auto
 		Summon: Summon
 		DeSummon: De-Summon
+		Fill: Fill
 	}
 }
 

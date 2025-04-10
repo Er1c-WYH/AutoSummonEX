@@ -7,6 +7,7 @@ using AutoSummonEX.UI.Controls;
 using Terraria.ModLoader;
 using AutoSummonEX.Config;
 using Terraria.ID;
+using AutoSummonEX.UI.Panels;
 
 namespace AutoSummonEX.UI
 {
@@ -32,7 +33,7 @@ namespace AutoSummonEX.UI
             var config = ModContent.GetInstance<AutoSummonConfig>();
             panel.Left.Set(config.PanelPosition.X, 0f);
             panel.Top.Set(config.PanelPosition.Y, 0f);
-            panel.Width.Set(500f, 0f);
+            panel.Width.Set(400f, 0f);
             panel.SetPadding(10);
             panel.SetDraggable(config.AllowDrag);
             Append(panel);
@@ -66,6 +67,16 @@ namespace AutoSummonEX.UI
                 bool result = p.minion && !p.sentry;
                 return result;
             };
+
+            var testPanel = new MinionSlotSubPanel();
+            testPanel.Top.Set(nextTop, 0f); // 放在你希望的位置
+            testPanel.Left.Set(20f, 0f);    // 稍微缩进一点
+            testPanel.GetPlayerMaxMinionSlots = () => Main.LocalPlayer.maxMinions;
+
+            panel.Append(testPanel); // 添加到主面板
+
+            nextTop += testPanel.Height.Pixels + 10f;
+
 
             // 仆从栏数值文本
             minionSlotText = new UIText("");
