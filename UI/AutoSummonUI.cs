@@ -32,7 +32,7 @@ namespace AutoSummonEX.UI
             var config = ModContent.GetInstance<AutoSummonConfig>();
             panel.Left.Set(config.PanelPosition.X, 0f);
             panel.Top.Set(config.PanelPosition.Y, 0f);
-            panel.Width.Set(300f, 0f);
+            panel.Width.Set(500f, 0f);
             panel.SetPadding(10);
             panel.SetDraggable(config.AllowDrag);
             Append(panel);
@@ -55,7 +55,7 @@ namespace AutoSummonEX.UI
             minionItemSlot.Top.Set(35f, 0f); // 距离子面板顶部一些距离
             minionPanel.Append(minionItemSlot);
 
-            minionItemSlot.CanAcceptItem = item =>
+            minionItemSlot.CanAcceptItem = item =>// 限制为仆从武器
             {
                 if (item == null || item.IsAir || item.shoot <= ProjectileID.None)
                     return false;
