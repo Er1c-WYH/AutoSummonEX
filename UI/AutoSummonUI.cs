@@ -18,7 +18,6 @@ namespace AutoSummonEX.UI
         private UIText titleText;
         private UIText minionSlotText;
         private UIText sentrySlotText;
-        private AutoSummonItemSlot minionItemSlot;
         private AutoSummonItemSlot sentryItemSlot;
         private UIFancyButton toggleButton;
         private UIFancyButton summonButton;
@@ -34,7 +33,7 @@ namespace AutoSummonEX.UI
             var config = ModContent.GetInstance<AutoSummonConfig>();
             panel.Left.Set(config.PanelPosition.X, 0f);
             panel.Top.Set(config.PanelPosition.Y, 0f);
-            // panel.Width.Set(400f, 0f);
+            panel.Width.Set(400f, 0f);
             panel.SetPadding(10);
             panel.SetDraggable(config.AllowDrag);
             Append(panel);
@@ -47,41 +46,22 @@ namespace AutoSummonEX.UI
             panel.Append(titleText);
             nextTop += 30f;
 
-            var minionPanel = new UISectionPanel(Language.GetTextValue("Mods.AutoSummonEX.UI.MinionSectionTitle"), 0f, 220f);// 子面板标题
+            // --- 仆从标题面板 ---
+            var minionPanel = new UISectionPanel(Language.GetTextValue("Mods.AutoSummonEX.UI.MinionSectionTitle"), 0f, 260f); // 高度稍微加一点以容纳子面板
             minionPanel.Top.Set(nextTop, 0f);
             panel.Append(minionPanel);
             nextTop += minionPanel.Height.Pixels + 28f;
 
-            minionItemSlot = new AutoSummonItemSlot(0.85f);// 仆从槽位
-            minionItemSlot.HAlign = 0.5f;
-            minionItemSlot.Top.Set(35f, 0f); // 距离子面板顶部一些距离
-            minionPanel.Append(minionItemSlot);
+            // ✅ 创建子面板并添加到 UISectionPanel 内部
+            var minionSubPanel = new MinionSlotSubPanel();
+            minionSubPanel.HAlign = 0.5f; // 居中
+            minionSubPanel.Top.Set(minionPanel.GetContentStartY() + 1f, 0f);
+            minionSubPanel.GetPlayerMaxMinionSlots = () => Main.LocalPlayer.maxMinions;
+            minionPanel.Append(minionSubPanel);
 
-            minionItemSlot.CanAcceptItem = item =>// 限制为仆从武器
-            {
-                if (item == null || item.IsAir || item.shoot <= ProjectileID.None)
-                    return false;
-
-                Projectile p = new Projectile();
-                p.SetDefaults(item.shoot);
-
-                bool result = p.minion && !p.sentry;
-                return result;
-            };
-
-            var testPanel = new MinionSlotSubPanel();
-            testPanel.Top.Set(nextTop, 0f); // 放在你希望的位置
-            testPanel.Left.Set(20f, 0f);    // 稍微缩进一点
-            testPanel.GetPlayerMaxMinionSlots = () => Main.LocalPlayer.maxMinions;
-
-            panel.Append(testPanel); // 添加到主面板
-
-            nextTop += testPanel.Height.Pixels + 10f;
-
-
-            // 仆从栏数值文本
+            // ✅ 仆从栏数值文本（仍添加在 UISectionPanel 内部）
             minionSlotText = new UIText("");
-            minionSlotText.Top.Set(minionPanel.Height.Pixels - 40f, 0f); // 调整为你希望的位置
+            minionSlotText.Top.Set(minionPanel.Height.Pixels - 40f, 0f);
             minionSlotText.HAlign = 0.5f;
             minionPanel.Append(minionSlotText);
 
@@ -132,11 +112,7 @@ namespace AutoSummonEX.UI
             panelBottomSpacer.Top.Set(nextTop + buttonSpacing * 3 + 10f, 0f);
             panelBottomSpacer.Height.Set(1f, 0f);
             panel.Append(panelBottomSpacer);
-
-            // ✅ 动态设定主面板宽度（含下限）
-            float minPanelWidth = 400f;
-            float dynamicWidth = testPanel.GetDimensions().Width + 40f;
-            panel.Width.Set(Math.Max(minPanelWidth, dynamicWidth), 0f);
+            
         }
 
         public override void Update(GameTime gameTime)

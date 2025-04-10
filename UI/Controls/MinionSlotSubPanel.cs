@@ -5,6 +5,7 @@ using Terraria.Localization;
 using Terraria;
 using AutoSummonEX.UI.Controls;
 using System;
+using Terraria.ID;
 
 namespace AutoSummonEX.UI.Panels
 {
@@ -42,6 +43,18 @@ namespace AutoSummonEX.UI.Panels
             ItemSlot.Left.Set(10f, 0f);
             ItemSlot.Top.Set(10f, 0f);
             Append(ItemSlot);
+
+            // ✅ 添加仆从限制逻辑
+            ItemSlot.CanAcceptItem = item =>
+            {
+                if (item == null || item.IsAir || item.shoot <= ProjectileID.None)
+                    return false;
+
+                Projectile p = new Projectile();
+                p.SetDefaults(item.shoot);
+
+                return p.minion && !p.sentry;
+            };
 
             labelCost = new UIText("", 0.85f);
             labelCost.Top.Set(5f, 0f);
