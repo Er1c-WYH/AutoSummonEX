@@ -6,7 +6,6 @@ using Terraria.UI;
 using AutoSummonEX.UI.Controls;
 using Terraria.ModLoader;
 using AutoSummonEX.Config;
-using Terraria.ID;
 using AutoSummonEX.UI.Panels;
 using System;
 
@@ -26,6 +25,9 @@ namespace AutoSummonEX.UI
         private UIElement panelBottomSpacer;
 
         private bool autoSummonOn = false;
+        private UISectionPanel minionPanel;
+        private UISectionPanel sentryPanel;
+        private MinionSlotSubPanel minionSubPanel;
 
         public override void OnInitialize()
         {
@@ -47,17 +49,21 @@ namespace AutoSummonEX.UI
             nextTop += 30f;
 
             // --- 仆从标题面板 ---
-            var minionPanel = new UISectionPanel(Language.GetTextValue("Mods.AutoSummonEX.UI.MinionSectionTitle"), 0f, 260f); // 高度稍微加一点以容纳子面板
+            minionPanel = new UISectionPanel(Language.GetTextValue("Mods.AutoSummonEX.UI.MinionSectionTitle"), 0f, 260f); // 高度稍微加一点以容纳子面板
             minionPanel.Top.Set(nextTop, 0f);
             panel.Append(minionPanel);
+            minionPanel.HAlign = 0.5f; // ✅ 水平居中
             nextTop += minionPanel.Height.Pixels + 28f;
 
             // ✅ 创建子面板并添加到 UISectionPanel 内部
-            var minionSubPanel = new MinionSlotSubPanel();
+            minionSubPanel = new MinionSlotSubPanel();
             minionSubPanel.HAlign = 0.5f; // 居中
-            minionSubPanel.Top.Set(minionPanel.GetContentStartY() + 1f, 0f);
+            minionSubPanel.Top.Set(minionPanel.GetContentStartY(), 0f);
             minionSubPanel.GetPlayerMaxMinionSlots = () => Main.LocalPlayer.maxMinions;
             minionPanel.Append(minionSubPanel);
+
+            float subPanelWidth = minionSubPanel.GetPanelFullWidth();
+            minionPanel.Width.Set(subPanelWidth + 20f, 0f); // 额外 padding
 
             // ✅ 仆从栏数值文本（仍添加在 UISectionPanel 内部）
             minionSlotText = new UIText("");
@@ -65,9 +71,10 @@ namespace AutoSummonEX.UI
             minionSlotText.HAlign = 0.5f;
             minionPanel.Append(minionSlotText);
 
-            var sentryPanel = new UISectionPanel(Language.GetTextValue("Mods.AutoSummonEX.UI.SentrySectionTitle"), 0f, 220f);// 子面板标题
+            sentryPanel = new UISectionPanel(Language.GetTextValue("Mods.AutoSummonEX.UI.SentrySectionTitle"), 0f, 220f);// 子面板标题
             sentryPanel.Top.Set(nextTop, 0f);
             panel.Append(sentryPanel);
+            sentryPanel.HAlign = 0.5f; // 水平居中
             nextTop += sentryPanel.Height.Pixels + 28f;
 
             sentryItemSlot = new AutoSummonItemSlot(0.85f);// 哨兵槽位
@@ -112,23 +119,41 @@ namespace AutoSummonEX.UI
             panelBottomSpacer.Top.Set(nextTop + buttonSpacing * 3 + 10f, 0f);
             panelBottomSpacer.Height.Set(1f, 0f);
             panel.Append(panelBottomSpacer);
-            
+
+            float minPanelWidth = 400f;
+            float dynamicPanelWidth = minionPanel.GetDimensions().Width + 40f;
+
+            panel.Width.Set(Math.Max(minPanelWidth, dynamicPanelWidth), 0f);
         }
 
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
 
+            // ✅ 每帧刷新仆从面板宽度
+            float subPanelWidth = minionSubPanel.GetPanelFullWidth();
+            minionPanel.Width.Set(subPanelWidth + 20f, 0f);
+
+            // ✅ 每帧同步哨兵面板宽度
+            sentryPanel.Width.Set(minionPanel.Width.Pixels, 0f);
+
+            float minPanelWidth = 400f;
+            float dynamicPanelWidth = minionPanel.GetDimensions().Width + 40f;
+            panel.Width.Set(Math.Max(minPanelWidth, dynamicPanelWidth), 0f);
+
+            // ✅ 同步面板高度
             float bottom = panelBottomSpacer.Top.Pixels + panelBottomSpacer.GetOuterDimensions().Height;
             panel.Height.Set(bottom + 10f, 0f);
             panel.Recalculate();
 
+            // ✅ 仆从栏位信息更新
             Player player = Main.LocalPlayer;
 
             float usedMinions = player.slotsMinions;
             int maxMinions = player.maxMinions;
             minionSlotText.SetText(Language.GetTextValue("Mods.AutoSummonEX.UI.MinionSlotInfo") + usedMinions.ToString("0.0") + " / " + maxMinions);
 
+            // ✅ 哨兵栏位信息更新
             int maxSentries = player.maxTurrets;
             int activeSentries = 0;
             foreach (var proj in Main.projectile)

@@ -170,5 +170,12 @@ namespace AutoSummonEX.UI.Panels
         {
             return !ItemSlot.Item.IsAir;
         }
+
+        public float GetPanelFullWidth()
+        {
+            float fillLeft = btnFill.Left.Pixels;
+            float fillWidth = btnFill.GetDimensions().Width;
+            return Math.Max(360f, fillLeft + fillWidth + 20f);
+        }
     }
 }
