@@ -133,6 +133,9 @@ namespace AutoSummonEX.UI.Panels
             OnUpdate -= WaitForTextAndLayout;
         }
 
+        private float initialLabelWidth = -1f;
+        private const float labelWidthBuffer = 10f;
+
         private void LayoutUI()
         {
             float baseLeft = 80f;
@@ -141,7 +144,22 @@ namespace AutoSummonEX.UI.Panels
             float totalLabelWidth = labelTotal.GetDimensions().Width;
 
             float maxLabelWidth = Math.Max(Math.Max(costLabelWidth, countLabelWidth), totalLabelWidth);
-            float labelRightX = baseLeft + maxLabelWidth + 10f;
+
+            // ✅ 首次记录初始 label 宽度 + 缓冲
+            if (initialLabelWidth < 0f)
+            {
+                initialLabelWidth = maxLabelWidth + labelWidthBuffer;
+            }
+            else
+            {
+                // ✅ 后续仅当新宽度超出上次记录才更新（防止按钮抖动）
+                if (maxLabelWidth > initialLabelWidth)
+                {
+                    initialLabelWidth = maxLabelWidth + labelWidthBuffer;
+                }
+            }
+
+            float labelRightX = baseLeft + initialLabelWidth;
 
             labelCost.Left.Set(baseLeft, 0f);
             labelCount.Left.Set(baseLeft, 0f);
@@ -158,7 +176,7 @@ namespace AutoSummonEX.UI.Panels
             float fillLeft = btnFill.Left.Pixels;
             float fillWidth = btnFill.GetDimensions().Width;
 
-            float panelMinWidth = fillLeft + fillWidth + 20f; // 用 Fill 按钮位置和宽度 + padding 计算
+            float panelMinWidth = fillLeft + fillWidth + 20f;
             this.Width.Set(Math.Max(360f, panelMinWidth), 0f);
             Recalculate();
         }
@@ -176,6 +194,11 @@ namespace AutoSummonEX.UI.Panels
             float fillLeft = btnFill.Left.Pixels;
             float fillWidth = btnFill.GetDimensions().Width;
             return Math.Max(360f, fillLeft + fillWidth + 20f);
+        }
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+            RefreshTextOnly();
         }
     }
 }

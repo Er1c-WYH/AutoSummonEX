@@ -126,6 +126,9 @@ namespace AutoSummonEX.UI
             panel.Width.Set(Math.Max(minPanelWidth, dynamicPanelWidth), 0f);
         }
 
+        private float initialPanelWidth = -1f;
+        private const float panelWidthBuffer = 30f;
+
         public override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
@@ -137,18 +140,33 @@ namespace AutoSummonEX.UI
                 Main.blockMouse = true;
             }
 
-            // ✅ 每帧刷新仆从面板宽度
-            float subPanelWidth = minionSubPanel.GetPanelFullWidth();
-            minionPanel.Width.Set(subPanelWidth + 20f, 0f);
+            // ✅ 计算当前子面板推荐宽度
+            float baseWidth = minionSubPanel.GetPanelFullWidth() + 20f;
 
-            // ✅ 每帧同步哨兵面板宽度
+            // ✅ 第一次进入：记录初始宽度 + 缓冲
+            if (initialPanelWidth < 0f)
+            {
+                initialPanelWidth = baseWidth + panelWidthBuffer;
+                minionPanel.Width.Set(initialPanelWidth, 0f);
+            }
+            else
+            {
+                // ✅ 后续：仅当宽度超出原始宽度才更新（防止轻微抖动）
+                if (baseWidth > initialPanelWidth)
+                {
+                    minionPanel.Width.Set(baseWidth, 0f);
+                }
+            }
+
+            // ✅ 哨兵面板始终与仆从面板等宽
             sentryPanel.Width.Set(minionPanel.Width.Pixels, 0f);
 
+            // ✅ 同步外层 panel 宽度（自动适配所有内容）
             float minPanelWidth = 400f;
             float dynamicPanelWidth = minionPanel.GetDimensions().Width + 40f;
             panel.Width.Set(Math.Max(minPanelWidth, dynamicPanelWidth), 0f);
 
-            // ✅ 同步面板高度
+            // ✅ 同步外层 panel 高度
             float bottom = panelBottomSpacer.Top.Pixels + panelBottomSpacer.GetOuterDimensions().Height;
             panel.Height.Set(bottom + 10f, 0f);
             panel.Recalculate();
