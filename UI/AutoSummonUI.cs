@@ -130,6 +130,13 @@ namespace AutoSummonEX.UI
         {
             base.Update(gameTime);
 
+            // ✅ 鼠标悬停整个 UI，禁止攻击
+            if (IsMouseHovering)
+            {
+                Main.LocalPlayer.mouseInterface = true;
+                Main.blockMouse = true;
+            }
+
             // ✅ 每帧刷新仆从面板宽度
             float subPanelWidth = minionSubPanel.GetPanelFullWidth();
             minionPanel.Width.Set(subPanelWidth + 20f, 0f);
