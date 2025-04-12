@@ -2,16 +2,14 @@ using Microsoft.Xna.Framework;
 using Terraria.UI;
 using Terraria.GameContent.UI.Elements;
 using Terraria.Localization;
-using Terraria;
 using AutoSummonEX.UI.Controls;
 using System;
-using Terraria.ID;
 
 namespace AutoSummonEX.UI.Panels
 {
     public class MinionSlotSubPanel : UIPanel
     {
-        public AutoSummonItemSlot ItemSlot { get; private set; }
+        private AutoSummonItemSlot boundSlot; // ✅ 外部传入的槽
 
         private UIText labelCost;
         private UIText labelCount;
@@ -19,7 +17,6 @@ namespace AutoSummonEX.UI.Panels
 
         private MiniButton btnCostAdd;
         private MiniButton btnCostSub;
-
         private MiniButton btnCountAdd;
         private MiniButton btnCountSub;
         private MiniButton btnFill;
@@ -28,6 +25,8 @@ namespace AutoSummonEX.UI.Panels
         private int usageCount = 1;
 
         private int delayedFrames = 0;
+        private float initialLabelWidth = -1f;
+        private const float labelWidthBuffer = 10f;
 
         public Func<float> GetPlayerMaxMinionSlots;
 
@@ -39,23 +38,7 @@ namespace AutoSummonEX.UI.Panels
             this.Width.Set(360f, 0f);
             this.Height.Set(95f, 0f);
 
-            ItemSlot = new AutoSummonItemSlot(0.85f);
-            ItemSlot.Left.Set(10f, 0f);
-            ItemSlot.Top.Set(10f, 0f);
-            Append(ItemSlot);
-
-            // ✅ 添加仆从限制逻辑
-            ItemSlot.CanAcceptItem = item =>
-            {
-                if (item == null || item.IsAir || item.shoot <= ProjectileID.None)
-                    return false;
-
-                Projectile p = new Projectile();
-                p.SetDefaults(item.shoot);
-
-                return p.minion && !p.sentry;
-            };
-
+            // ✅ 参数设置 UI（无物品槽）
             labelCost = new UIText("", 0.85f);
             labelCost.Top.Set(5f, 0f);
             Append(labelCost);
@@ -101,6 +84,17 @@ namespace AutoSummonEX.UI.Panels
             Refresh();
         }
 
+        public void SetItemSlot(AutoSummonItemSlot slot)
+        {
+            boundSlot = slot;
+        }
+
+        public override void Update(GameTime gameTime)
+        {
+            base.Update(gameTime);
+            RefreshTextOnly();
+        }
+
         private void Refresh()
         {
             RefreshTextOnly();
@@ -133,30 +127,21 @@ namespace AutoSummonEX.UI.Panels
             OnUpdate -= WaitForTextAndLayout;
         }
 
-        private float initialLabelWidth = -1f;
-        private const float labelWidthBuffer = 10f;
-
         private void LayoutUI()
         {
-            float baseLeft = 80f;
+            float baseLeft = 0f;
             float costLabelWidth = labelCost.GetDimensions().Width;
             float countLabelWidth = labelCount.GetDimensions().Width;
             float totalLabelWidth = labelTotal.GetDimensions().Width;
-
             float maxLabelWidth = Math.Max(Math.Max(costLabelWidth, countLabelWidth), totalLabelWidth);
 
-            // ✅ 首次记录初始 label 宽度 + 缓冲
             if (initialLabelWidth < 0f)
             {
                 initialLabelWidth = maxLabelWidth + labelWidthBuffer;
             }
-            else
+            else if (maxLabelWidth > initialLabelWidth)
             {
-                // ✅ 后续仅当新宽度超出上次记录才更新（防止按钮抖动）
-                if (maxLabelWidth > initialLabelWidth)
-                {
-                    initialLabelWidth = maxLabelWidth + labelWidthBuffer;
-                }
+                initialLabelWidth = maxLabelWidth + labelWidthBuffer;
             }
 
             float labelRightX = baseLeft + initialLabelWidth;
@@ -167,7 +152,6 @@ namespace AutoSummonEX.UI.Panels
 
             btnCostSub.Left.Set(labelRightX, 0f);
             btnCostAdd.Left.Set(labelRightX + 42f, 0f);
-
             btnCountSub.Left.Set(labelRightX, 0f);
             btnCountAdd.Left.Set(labelRightX + 42f, 0f);
             btnFill.Left.Set(labelRightX + 84f, 0f);
@@ -175,30 +159,19 @@ namespace AutoSummonEX.UI.Panels
             btnFill.Recalculate();
             float fillLeft = btnFill.Left.Pixels;
             float fillWidth = btnFill.GetDimensions().Width;
-
             float panelMinWidth = fillLeft + fillWidth + 20f;
-            this.Width.Set(Math.Max(360f, panelMinWidth), 0f);
+            this.Width.Set(Math.Max(200f, panelMinWidth), 0f);
             Recalculate();
         }
 
         private string GetCostLabelText() => Language.GetTextValue("Mods.AutoSummonEX.UI.Label.Cost") + slotCost;
         private string GetCountLabelText() => Language.GetTextValue("Mods.AutoSummonEX.UI.Label.Count") + usageCount;
 
-        public bool ShouldBeVisible()
-        {
-            return !ItemSlot.Item.IsAir;
-        }
-
         public float GetPanelFullWidth()
         {
             float fillLeft = btnFill.Left.Pixels;
             float fillWidth = btnFill.GetDimensions().Width;
-            return Math.Max(360f, fillLeft + fillWidth + 20f);
-        }
-        public override void Update(GameTime gameTime)
-        {
-            base.Update(gameTime);
-            RefreshTextOnly();
+            return Math.Max(200f, fillLeft + fillWidth + 20f);
         }
     }
 }
