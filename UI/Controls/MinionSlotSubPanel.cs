@@ -173,5 +173,9 @@ namespace AutoSummonEX.UI.Panels
             float fillWidth = btnFill.GetDimensions().Width;
             return Math.Max(200f, fillLeft + fillWidth + 20f);
         }
+        public float GetUsageSlotCost()
+        {
+            return slotCost * usageCount;
+        }
     }
 }

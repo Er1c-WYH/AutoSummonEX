@@ -6,9 +6,7 @@ using Terraria.UI;
 using AutoSummonEX.UI.Controls;
 using Terraria.ModLoader;
 using AutoSummonEX.Config;
-using AutoSummonEX.UI.Panels;
 using System;
-using Terraria.ID;
 
 // ⚠️ 前略：using 语句不变
 
@@ -20,20 +18,18 @@ namespace AutoSummonEX.UI
         private UIText titleText;
         private UIText minionSlotText;
         private UIText sentrySlotText;
-        private AutoSummonItemSlot minionItemSlot;
         private AutoSummonItemSlot sentryItemSlot;
         private UIFancyButton toggleButton;
         private UIFancyButton summonButton;
         private UIFancyButton desummonButton;
-
+        private MinionSlotPair minionSlotPair;
         private UIElement panelBottomSpacer;
-
         private bool autoSummonOn = false;
-
         private UISectionPanel minionPanel;
         private UISectionPanel sentryPanel;
-
-        private MinionSlotSubPanel minionSubPanel;
+        private float initialPanelWidth = -1f;
+        private const float panelWidthBuffer = 60f;
+        private int frameCounter = 0;
 
         public override void OnInitialize()
         {
@@ -55,32 +51,18 @@ namespace AutoSummonEX.UI
             nextTop += 30f;
 
             // ── 仆从区域 ──
-            minionPanel = new UISectionPanel(Language.GetTextValue("Mods.AutoSummonEX.UI.MinionSectionTitle"), 0f, 260f);
+            // 仆从面板
+            minionPanel = new UISectionPanel("仆从", 0f, 260f);
             minionPanel.Top.Set(nextTop, 0f);
             minionPanel.HAlign = 0.5f;
             panel.Append(minionPanel);
             nextTop += minionPanel.Height.Pixels + 28f;
 
-            // ✅ 仆从槽（移出子面板，始终存在）
-            minionItemSlot = new AutoSummonItemSlot(0.85f);
-            minionItemSlot.Left.Set(10f, 0f);
-            minionItemSlot.Top.Set(minionPanel.GetContentStartY(), 0f);
-            minionItemSlot.CanAcceptItem = item =>
-            {
-                if (item == null || item.IsAir || item.shoot <= ProjectileID.None)
-                    return false;
-                Projectile p = new Projectile();
-                p.SetDefaults(item.shoot);
-                return p.minion && !p.sentry;
-            };
-            minionPanel.Append(minionItemSlot);
+            minionSlotPair = new MinionSlotPair();
+            minionSlotPair.HAlign = 0.5f;
+            minionSlotPair.Top.Set(minionPanel.GetContentStartY(), 0f);
+            minionPanel.Append(minionSlotPair);
 
-            // ✅ 子面板（不嵌入槽中，动态显示）
-            minionSubPanel = new MinionSlotSubPanel();
-            minionSubPanel.Top.Set(minionItemSlot.Top.Pixels, 0f);
-            minionSubPanel.GetPlayerMaxMinionSlots = () => Main.LocalPlayer.maxMinions;
-
-            // 仆从栏位信息
             minionSlotText = new UIText("");
             minionSlotText.Top.Set(minionPanel.Height.Pixels - 40f, 0f);
             minionSlotText.HAlign = 0.5f;
@@ -137,56 +119,48 @@ namespace AutoSummonEX.UI
         {
             base.Update(gameTime);
 
+            frameCounter++;
             if (IsMouseHovering)
             {
                 Main.LocalPlayer.mouseInterface = true;
                 Main.blockMouse = true;
             }
 
-            // ✅ 控制子面板出现
-            if (!minionItemSlot.Item.IsAir)
-            {
-                if (!minionPanel.HasChild(minionSubPanel))
-                    minionPanel.Append(minionSubPanel);
+            float baseWidth = minionSlotPair.GetPanelFullWidth();
 
-                float left = minionItemSlot.Left.Pixels + minionItemSlot.Width.Pixels + 10f;
-                minionSubPanel.Left.Set(left, 0f);
-                minionSubPanel.Recalculate();
-            }
-            else
+            if (initialPanelWidth < 0f && frameCounter >= 2)
             {
-                if (minionPanel.HasChild(minionSubPanel))
-                    minionPanel.RemoveChild(minionSubPanel);
+                initialPanelWidth = baseWidth + panelWidthBuffer;
             }
 
-            // ✅ 动态宽度
-            float subRight = minionSubPanel?.Parent != null
-                ? minionSubPanel.Left.Pixels + minionSubPanel.Width.Pixels
-                : minionItemSlot.Left.Pixels + minionItemSlot.Width.Pixels;
+            float bufferedBaseWidth = Math.Max(initialPanelWidth, baseWidth);
+            minionPanel.Width.Set(bufferedBaseWidth, 0f);
+            sentryPanel.Width.Set(minionPanel.Width.Pixels, 0f);
 
-            float panelWidth = Math.Max(400f, subRight + 40f);
-            panel.Width.Set(panelWidth, 0f);
+            float minPanelWidth = 400f;
+            float dynamicPanelWidth = minionPanel.GetDimensions().Width + 40f;
+            panel.Width.Set(Math.Max(minPanelWidth, dynamicPanelWidth), 0f);
 
-            // ✅ 同步高度
             float bottom = panelBottomSpacer.Top.Pixels + panelBottomSpacer.GetOuterDimensions().Height;
             panel.Height.Set(bottom + 10f, 0f);
             panel.Recalculate();
 
-            // ✅ 仆从栏位信息
             Player player = Main.LocalPlayer;
+
             float usedMinions = player.slotsMinions;
             int maxMinions = player.maxMinions;
-            minionSlotText.SetText(Language.GetTextValue("Mods.AutoSummonEX.UI.MinionSlotInfo") + usedMinions.ToString("0.0") + " / " + maxMinions);
+            minionSlotText.SetText("仆从栏位：" + usedMinions.ToString("0.0") + " / " + maxMinions);
 
-            // ✅ 哨兵栏位信息
             int maxSentries = player.maxTurrets;
             int activeSentries = 0;
             foreach (var proj in Main.projectile)
             {
                 if (proj.active && proj.owner == player.whoAmI && proj.sentry)
+                {
                     activeSentries++;
+                }
             }
-            sentrySlotText.SetText(Language.GetTextValue("Mods.AutoSummonEX.UI.SentrySlotInfo") + activeSentries.ToString() + " / " + maxSentries);
+            sentrySlotText.SetText("哨兵栏位：" + activeSentries.ToString() + " / " + maxSentries);
         }
 
         private void ToggleAuto()
