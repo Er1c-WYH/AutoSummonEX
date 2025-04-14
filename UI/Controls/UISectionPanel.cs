@@ -7,10 +7,10 @@ namespace AutoSummonEX.UI.Controls
     {
         private UIText titleText;
 
-        public UISectionPanel(string title, float width = 0f, float height = 200f)
+        public UISectionPanel(string title, float width = 400f, float height = 200f)
         {
             this.SetPadding(10);
-            this.Width.Set(width, width == 0f ? 1f : 0f); // 默认撑满父面板
+            this.Width.Set(400f, 0f); // 默认 400 像素
             this.Height.Set(height, 0f);
             this.BackgroundColor = new Color(45, 50, 70) * 0.85f;
             this.BorderColor = new Color(20, 20, 30);

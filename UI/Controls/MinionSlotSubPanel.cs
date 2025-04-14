@@ -4,6 +4,7 @@ using Terraria.GameContent.UI.Elements;
 using Terraria.Localization;
 using AutoSummonEX.UI.Controls;
 using System;
+using Terraria;
 
 namespace AutoSummonEX.UI.Panels
 {
@@ -25,8 +26,7 @@ namespace AutoSummonEX.UI.Panels
         private int usageCount = 1;
 
         private int delayedFrames = 0;
-        private float initialLabelWidth = -1f;
-        private const float labelWidthBuffer = 10f;
+        private const float labelWidthBuffer = 120f;
 
         public Func<float> GetPlayerMaxMinionSlots;
 
@@ -133,28 +133,22 @@ namespace AutoSummonEX.UI.Panels
             float costLabelWidth = labelCost.GetDimensions().Width;
             float countLabelWidth = labelCount.GetDimensions().Width;
             float totalLabelWidth = labelTotal.GetDimensions().Width;
+
             float maxLabelWidth = Math.Max(Math.Max(costLabelWidth, countLabelWidth), totalLabelWidth);
 
-            if (initialLabelWidth < 0f)
-            {
-                initialLabelWidth = maxLabelWidth + labelWidthBuffer;
-            }
-            else if (maxLabelWidth > initialLabelWidth)
-            {
-                initialLabelWidth = maxLabelWidth + labelWidthBuffer;
-            }
-
-            float labelRightX = baseLeft + initialLabelWidth;
+            // ✅ label 缓冲保护：按钮锚点在 labelWidth 和 labelWidthBuffer 中较大者
+            float labelAnchorWidth = Math.Max(maxLabelWidth, labelWidthBuffer);
+            float labelRightX = baseLeft + labelAnchorWidth + 10f;
 
             labelCost.Left.Set(baseLeft, 0f);
             labelCount.Left.Set(baseLeft, 0f);
             labelTotal.Left.Set(baseLeft, 0f);
 
             btnCostSub.Left.Set(labelRightX, 0f);
-            btnCostAdd.Left.Set(labelRightX + 42f, 0f);
+            btnCostAdd.Left.Set(labelRightX + 40f, 0f);
             btnCountSub.Left.Set(labelRightX, 0f);
-            btnCountAdd.Left.Set(labelRightX + 42f, 0f);
-            btnFill.Left.Set(labelRightX + 84f, 0f);
+            btnCountAdd.Left.Set(labelRightX + 40f, 0f);
+            btnFill.Left.Set(labelRightX + 80f, 0f);
 
             btnFill.Recalculate();
             float fillLeft = btnFill.Left.Pixels;

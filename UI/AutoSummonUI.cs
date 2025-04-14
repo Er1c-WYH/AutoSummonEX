@@ -6,7 +6,6 @@ using Terraria.UI;
 using AutoSummonEX.UI.Controls;
 using Terraria.ModLoader;
 using AutoSummonEX.Config;
-using System;
 
 // ⚠️ 前略：using 语句不变
 
@@ -27,9 +26,6 @@ namespace AutoSummonEX.UI
         private bool autoSummonOn = false;
         private UISectionPanel minionPanel;
         private UISectionPanel sentryPanel;
-        private float initialPanelWidth = -1f;
-        private const float panelWidthBuffer = 60f;
-        private int frameCounter = 0;
 
         public override void OnInitialize()
         {
@@ -119,27 +115,18 @@ namespace AutoSummonEX.UI
         {
             base.Update(gameTime);
 
-            frameCounter++;
             if (IsMouseHovering)
             {
                 Main.LocalPlayer.mouseInterface = true;
                 Main.blockMouse = true;
             }
 
-            float baseWidth = minionSlotPair.GetPanelFullWidth();
+            float pairWidth = minionSlotPair.GetPanelFullWidth();// 这个没问题
+            float minionPanelWidth = pairWidth + 10f;
 
-            if (initialPanelWidth < 0f && frameCounter >= 2)
-            {
-                initialPanelWidth = baseWidth + panelWidthBuffer;
-            }
-
-            float bufferedBaseWidth = Math.Max(initialPanelWidth, baseWidth);
-            minionPanel.Width.Set(bufferedBaseWidth, 0f);
-            sentryPanel.Width.Set(minionPanel.Width.Pixels, 0f);
-
-            float minPanelWidth = 400f;
-            float dynamicPanelWidth = minionPanel.GetDimensions().Width + 40f;
-            panel.Width.Set(Math.Max(minPanelWidth, dynamicPanelWidth), 0f);
+            minionPanel.Width.Set(minionPanelWidth, 0f);
+            sentryPanel.Width.Set(minionPanelWidth, 0f);
+            panel.Width.Set(minionPanelWidth + 10f, 0f);
 
             float bottom = panelBottomSpacer.Top.Pixels + panelBottomSpacer.GetOuterDimensions().Height;
             panel.Height.Set(bottom + 10f, 0f);
