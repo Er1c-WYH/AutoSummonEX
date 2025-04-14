@@ -7,8 +7,6 @@ using AutoSummonEX.UI.Controls;
 using Terraria.ModLoader;
 using AutoSummonEX.Config;
 
-// ⚠️ 前略：using 语句不变
-
 namespace AutoSummonEX.UI
 {
     public class AutoSummonUI : UIState
@@ -21,11 +19,11 @@ namespace AutoSummonEX.UI
         private UIFancyButton toggleButton;
         private UIFancyButton summonButton;
         private UIFancyButton desummonButton;
-        private MinionSlotPair minionSlotPair;
         private UIElement panelBottomSpacer;
         private bool autoSummonOn = false;
         private UISectionPanel minionPanel;
         private UISectionPanel sentryPanel;
+        private MinionPairGroup minionGroup;
 
         public override void OnInitialize()
         {
@@ -47,17 +45,16 @@ namespace AutoSummonEX.UI
             nextTop += 30f;
 
             // ── 仆从区域 ──
-            // 仆从面板
-            minionPanel = new UISectionPanel("仆从", 0f, 260f);
+            minionPanel = new UISectionPanel(Language.GetTextValue("Mods.AutoSummonEX.UI.MinionSectionTitle"), 0f, 260f);
             minionPanel.Top.Set(nextTop, 0f);
             minionPanel.HAlign = 0.5f;
             panel.Append(minionPanel);
             nextTop += minionPanel.Height.Pixels + 28f;
 
-            minionSlotPair = new MinionSlotPair();
-            minionSlotPair.HAlign = 0.5f;
-            minionSlotPair.Top.Set(minionPanel.GetContentStartY(), 0f);
-            minionPanel.Append(minionSlotPair);
+            minionGroup = new MinionPairGroup();
+            minionGroup.Top.Set(minionPanel.GetContentStartY(), 0f);
+            minionGroup.HAlign = 0.5f;
+            minionPanel.Append(minionGroup);
 
             minionSlotText = new UIText("");
             minionSlotText.Top.Set(minionPanel.Height.Pixels - 40f, 0f);
@@ -121,8 +118,9 @@ namespace AutoSummonEX.UI
                 Main.blockMouse = true;
             }
 
-            float pairWidth = minionSlotPair.GetPanelFullWidth();// 这个没问题
-            float minionPanelWidth = pairWidth + 10f;
+            float groupWidth = minionGroup?.GetGroupFullWidth() ?? 360f;
+            float minionPanelWidth = groupWidth + 10f;
+            minionGroup.HAlign = 0.5f;
 
             minionPanel.Width.Set(minionPanelWidth, 0f);
             sentryPanel.Width.Set(minionPanelWidth, 0f);
