@@ -77,9 +77,7 @@ namespace AutoSummonEX.UI
             }
 
             SubPanel.Recalculate();
-            float actual = SubPanel.Left.Pixels + SubPanel.GetPanelFullWidth() + 20f;
-            Main.NewText($"pair宽度{SubPanel.Left.Pixels} + {SubPanel.GetPanelFullWidth()} = {actual}");
-            Main.NewText($"subpanel实际左侧距离{ItemSlot.Left.Pixels} + {ItemSlot.Width.Pixels} + {PanelSpacing} = {ItemSlot.Left.Pixels + ItemSlot.Width.Pixels + PanelSpacing}");
+            float actual = SubPanel.Left.Pixels + SubPanel.GetPanelFullWidth() + 30f;
             return actual;
         }
 
