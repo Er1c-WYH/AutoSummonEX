@@ -132,6 +132,7 @@ namespace AutoSummonEX.UI.Panels
             float baseLeft = 0f;
             float costLabelWidth = labelCost.GetDimensions().Width;
             float countLabelWidth = labelCount.GetDimensions().Width;
+            // float totalLabelWidth = labelTotal.GetDimensions().Width;
 
             float maxLabelWidth = Math.Max(costLabelWidth, countLabelWidth);
 
