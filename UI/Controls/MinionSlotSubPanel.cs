@@ -132,9 +132,9 @@ namespace AutoSummonEX.UI.Panels
             float baseLeft = 0f;
             float costLabelWidth = labelCost.GetDimensions().Width;
             float countLabelWidth = labelCount.GetDimensions().Width;
-            // float totalLabelWidth = labelTotal.GetDimensions().Width;
+            float totalLabelWidth = labelTotal.GetDimensions().Width;
 
-            float maxLabelWidth = Math.Max(costLabelWidth, countLabelWidth);
+            float maxLabelWidth = Math.Max(Math.Max(costLabelWidth, countLabelWidth), totalLabelWidth);
 
             // ✅ label 缓冲保护：按钮锚点在 labelWidth 和 labelWidthBuffer 中较大者
             float labelAnchorWidth = Math.Max(maxLabelWidth, labelWidthBuffer);
