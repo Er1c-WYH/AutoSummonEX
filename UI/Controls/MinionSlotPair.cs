@@ -9,7 +9,7 @@ using System;
 
 namespace AutoSummonEX.UI
 {
-    public class MinionSlotPair : UIPanel
+    public class MinionSlotPair : UIElement
     {
         public AutoSummonItemSlot ItemSlot { get; private set; }
         public MinionSlotSubPanel SubPanel { get; private set; }
@@ -21,8 +21,6 @@ namespace AutoSummonEX.UI
 
         public MinionSlotPair()
         {
-            BackgroundColor = new Color(255, 0, 0, 60); // 可去除
-            BorderColor = new Color(255, 255, 255, 180);
             Height.Set(105f, 0f);
             this.SetPadding(0);
 
